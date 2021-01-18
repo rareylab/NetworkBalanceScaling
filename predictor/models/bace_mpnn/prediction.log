@@ -1,0 +1,47 @@
+Starting MPNN for Dataset
+<deepchem.data.data_loader.SDFLoader object at 0x7f5e60426850>
+Loading raw samples now.
+shard_size: 8192
+Reading structures from data/bace_80_10_10/bace_train_tvt.sdf.
+Currently featurizing feature_type: WeaveFeaturizer
+Featurizing sample 0
+Featurizing sample 1000
+TIMING: featurizing shard 0 took 3.007 s
+TIMING: dataset construction took 4.365 s
+Loading dataset from disk.
+train has 1210 compounds
+Loading raw samples now.
+shard_size: 8192
+Reading structures from data/bace_80_10_10/bace_validation_tvt.sdf.
+Currently featurizing feature_type: WeaveFeaturizer
+Featurizing sample 0
+TIMING: featurizing shard 0 took 0.340 s
+TIMING: dataset construction took 0.478 s
+Loading dataset from disk.
+Loading raw samples now.
+shard_size: 8192
+Reading structures from data/bace_80_10_10/bace_test_tvt.sdf.
+Currently featurizing feature_type: WeaveFeaturizer
+Featurizing sample 0
+TIMING: featurizing shard 0 took 0.353 s
+TIMING: dataset construction took 0.498 s
+Loading dataset from disk.
+TIMING: dataset construction took 1.223 s
+Loading dataset from disk.
+TIMING: dataset construction took 0.134 s
+Loading dataset from disk.
+TIMING: dataset construction took 0.146 s
+Loading dataset from disk.
+-----------------------------
+Start fitting: mpnn
+Evaluating
+computed_metrics: [0.5767748471503408]
+computed_metrics: [0.8342458778788259]
+computed_metrics: [0.7955409194010578]
+computed_metrics: [0.6238254605027532]
+computed_metrics: [0.706226797833205]
+computed_metrics: [0.756558389112122]
+Train score: {'mpnn': {'mean-rms_score': 0.5767748471503408, 'mean-pearson_r2_score': 0.8342458778788259}}
+Valid score: {'mpnn': {'mean-rms_score': 0.7955409194010578, 'mean-pearson_r2_score': 0.6238254605027532}}
+Test score: {'mpnn': {'mean-rms_score': 0.706226797833205, 'mean-pearson_r2_score': 0.756558389112122}}
+Model was saved to: predictor/models/bace_mpnn
