@@ -97,7 +97,8 @@ fi
 result_file="${results_dir}/${result_name}_optimized.GraphML"
 if [ -f ${result_file} ] && [ -s ${result_file} ]; then
   # rm -r ${temp_dir}
-  # echo "Deleted temporary files. Results can be found in ${results_dir}."
+    # echo "Deleted temporary files. Results can be found in ${results_dir}."
+  echo "Ok."
 else
   echo "An error occurred. Check temporary results in ${temp_dir}."
 fi
