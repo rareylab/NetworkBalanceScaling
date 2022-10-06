@@ -24,9 +24,9 @@ predictor="./predictor/bace_predictor_predict.sh"
 
 
 
-training_sdf=`realpath $training_sdf`
-query_sdf=`realpath $query_sdf`
-predictor=`realpath $predictor`
+training_sdf=`utils/readlink.sh $training_sdf`
+query_sdf=`utils/readlink.sh $query_sdf`
+predictor=`utils/readlink.sh $predictor`
 
 merged_sdf="${temp_dir}/merged.sdf"
 merged_smi="${temp_dir}/merged.smi"
@@ -98,6 +98,7 @@ result_file="${results_dir}/${result_name}_optimized.GraphML"
 if [ -f ${result_file} ] && [ -s ${result_file} ]; then
   # rm -r ${temp_dir}
   # echo "Deleted temporary files. Results can be found in ${results_dir}."
+  echo "Ok."
 else
   echo "An error occurred. Check temporary results in ${temp_dir}."
 fi
