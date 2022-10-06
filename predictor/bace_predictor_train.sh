@@ -28,5 +28,5 @@ conda activate ${conda_env_name}
 
 # Build model
 mkdir ${model_dir}
-python3 predictor/build_model.py ${training_sdf} ${validation_sdf} ${test_sdf} ${prop_label} -m ${model} -o ${model_dir} | tee ${prediction_log}
+python predictor/build_model.py ${training_sdf} ${validation_sdf} ${test_sdf} ${prop_label} -m ${model} -o ${model_dir} | tee ${prediction_log}
 conda deactivate

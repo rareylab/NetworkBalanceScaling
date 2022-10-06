@@ -45,28 +45,28 @@ conda activate ${conda_env_name}
 echo "Creating mmpdb index."
 mkdir ${temp_dir}
 cat ${training_sdf} ${query_sdf} > ${merged_sdf}
-cmd="python3 utils/convert_SDF2SMI.py ${merged_sdf} ${prop_label} --output ${merged_smi} --id ${id_label}"
+cmd="python utils/convert_SDF2SMI.py ${merged_sdf} ${prop_label} --output ${merged_smi} --id ${id_label}"
 echo "run: ${cmd}"
 eval ${cmd}
 
-cmd="python3 utils/mmpdb/mmpdb fragment ${merged_smi} -o ${merged_fragments}"
+cmd="python utils/mmpdb/mmpdb fragment ${merged_smi} -o ${merged_fragments}"
 echo "run: ${cmd}"
 eval ${cmd}
 
-cmd="python3 utils/mmpdb/mmpdb index ${merged_fragments} -o ${merged_index}"
+cmd="python utils/mmpdb/mmpdb index ${merged_fragments} -o ${merged_index}"
 echo "run: ${cmd}"
 eval ${cmd}
 
 # 3. generate network
 echo "Generating network."
 
-cmd="python3 generate_network.py ${merged_index} ${merged_smi} ${prop_label} -o ${graph}"
+cmd="python generate_network.py ${merged_index} ${merged_smi} ${prop_label} -o ${graph}"
 echo "run: ${cmd}"
 eval ${cmd}
 
 # 4. optimize network with standard parameters
 echo "Optimizing network."
-cmd="python3 optimize_network.py ${graph} --outdir ${results_dir} --format sdf"
+cmd="python optimize_network.py ${graph} --outdir ${results_dir} --format sdf"
 echo "run: ${cmd}"
 eval ${cmd}
 
@@ -74,7 +74,7 @@ eval ${cmd}
 
 label_predicted="${prop_label}_predicted"
 label_optimized="${label_predicted}_optimized"
-cmd="python3 utils/evaluate_results.py -o ${original} -p ${results_dir}/${result_name}.sdf --label_predicted ${label_predicted} --label_optimized ${label_optimized} -i ${id_label} --id_prediction ${id_label_prediction} -l ${evaluation_log} ${prop_label}"
+cmd="python utils/evaluate_results.py -o ${original} -p ${results_dir}/${result_name}.sdf --label_predicted ${label_predicted} --label_optimized ${label_optimized} -i ${id_label} --id_prediction ${id_label_prediction} -l ${evaluation_log} ${prop_label}"
 echo "run: ${cmd}"
 eval ${cmd}
 

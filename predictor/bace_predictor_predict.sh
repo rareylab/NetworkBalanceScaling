@@ -29,7 +29,7 @@ fi
 conda activate ${conda_env_name}
 
 # Predict
-cmd="python3 predictor/predictor.py ${query_sdf} ${property} -d ${model_dir} -o ${result} -m ${model} -i id"
+cmd="python predictor/predictor.py ${query_sdf} ${property} -d ${model_dir} -o ${result} -m ${model} -i id"
 echo "run: ${cmd}"
 eval ${cmd}
 conda deactivate

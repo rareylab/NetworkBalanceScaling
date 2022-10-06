@@ -68,18 +68,18 @@ conda activate ${conda_env_name}
 cat ${training_sdf} ${validation_sdf} ${query_sdf} > ${merged_sdf}
 cat ${training_sdf} ${validation_sdf} > ${graph_train_sdf}
 echo "Converting files with utils scripts."
-python3 utils/convert_SDF2SMI.py ${merged_sdf} ${prop_label} --output ${merged_smi} --id ${id_label}
-python3 utils/convert_SDF2SMI.py ${graph_train_sdf} ${prop_label} --output ${graph_train_smi} --id ${id_label}
-python3 utils/mmpdb/mmpdb fragment ${merged_smi} -o ${merged_fragments}
-python3 utils/mmpdb/mmpdb index ${merged_fragments} -o ${merged_index}
+python utils/convert_SDF2SMI.py ${merged_sdf} ${prop_label} --output ${merged_smi} --id ${id_label}
+python utils/convert_SDF2SMI.py ${graph_train_sdf} ${prop_label} --output ${graph_train_smi} --id ${id_label}
+python utils/mmpdb/mmpdb fragment ${merged_smi} -o ${merged_fragments}
+python utils/mmpdb/mmpdb index ${merged_fragments} -o ${merged_index}
 
 # 3. generate network
-cmd="python3 generate_network.py ${merged_index} ${graph_train_smi} ${prop_label} -o ${graph} --prediction ${prediction_res}"
+cmd="python generate_network.py ${merged_index} ${graph_train_smi} ${prop_label} -o ${graph} --prediction ${prediction_res}"
 echo "run: ${cmd}"
 eval ${cmd}
 
 # 4. optimize network and existing predictions with standard parameters
-cmd="python3 optimize_network.py ${graph} --outdir ${results_dir} --prediction --format sdf --sdf_id_label ${id_label} --sdf_original ${original} --sdf_original_id_label ${id_label} --sdf_original_property_label ${prop_label}"
+cmd="python optimize_network.py ${graph} --outdir ${results_dir} --prediction --format sdf --sdf_id_label ${id_label} --sdf_original ${original} --sdf_original_id_label ${id_label} --sdf_original_property_label ${prop_label}"
 echo "run: ${cmd}"
 eval ${cmd}
 
@@ -88,7 +88,7 @@ eval ${cmd}
 if [ "$original" != "" ]; then
     label_predicted="${prop_label}_predicted"
     label_optimized="${label_predicted}_optimized"
-    cmd="python3 utils/evaluate_results.py -o ${original} -p ${prediction_res} -q ${results_dir}/${result_name}.sdf -i ${id_label} -l ${evaluation_log} --label_predicted ${label_predicted} --label_optimized ${label_optimized} ${prop_label}"
+    cmd="python utils/evaluate_results.py -o ${original} -p ${prediction_res} -q ${results_dir}/${result_name}.sdf -i ${id_label} -l ${evaluation_log} --label_predicted ${label_predicted} --label_optimized ${label_optimized} ${prop_label}"
     echo "run ${cmd}"
     eval ${cmd}
 fi
