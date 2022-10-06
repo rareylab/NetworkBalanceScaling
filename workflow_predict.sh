@@ -64,12 +64,16 @@ eval ${cmd}
 
 # 4. optimize network with standard parameters
 echo "Optimizing network."
-python3 optimize_network.py ${graph} --outdir ${results_dir} --format sdf
+cmd="python3 optimize_network.py ${graph} --outdir ${results_dir} --format sdf"
+echo "run: ${cmd}"
+eval ${cmd}
 
 # 5. evaluate optimized results
 
-cmd="python3 utils/evaluate_results.py -o ${original} -p ${results_dir}/${result_name}.sdf ${prop_label} -i ${id_label} -l ${evaluation_log}"
-echo "run ${cmd}"
+label_predicted="${prop_label}_predicted"
+label_optimized="${label_predicted}_optimized"
+cmd="python3 utils/evaluate_results.py -o ${original} -p ${results_dir}/${result_name}.sdf --label_predicted ${label_predicted} --label_optimized ${label_optimized} ${prop_label} -i ${id_label} -l ${evaluation_log}"
+echo "run: ${cmd}"
 eval ${cmd}
 
 # 6. delete temp dir & deactivate environment

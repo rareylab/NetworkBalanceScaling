@@ -1,10 +1,10 @@
+#!/bin/bash
+
 # This file is part of Network Balance Scaling, licensed
 # under BSD New license (see LICENSE in the root directory).
 # Copyright (c) 2021
 # University of Hamburg, ZBH - Center for Bioinformatics
 # Sophia Hönig, Wolf-Guido Bolick, Emanuel Ehmki, Matthias Rarey
-
-#!/bin/bash
 
 source ~/.bashrc
 
@@ -86,7 +86,9 @@ eval ${cmd}
 
 # 5. evaluate optimized results
 if [ "$original" != "" ]; then
-    cmd="python3 utils/evaluate_results.py -o ${original} -p ${prediction_res} -q ${results_dir}/${result_name}.sdf -i ${id_label} -l ${evaluation_log} ${prop_label}"
+    label_predicted="${prop_label}_predicted"
+    label_optimized="${label_predicted}_optimized"
+    cmd="python3 utils/evaluate_results.py -o ${original} -p ${prediction_res} -q ${results_dir}/${result_name}.sdf -i ${id_label} -l ${evaluation_log} --label_predicted ${label_predicted} --label_optimized ${label_optimized} ${prop_label}"
     echo "run ${cmd}"
     eval ${cmd}
 fi

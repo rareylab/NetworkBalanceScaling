@@ -1,10 +1,12 @@
+#!/usr/bin/env python3
+
 # This file is part of Network Balance Scaling, licensed
 # under BSD New license (see LICENSE in the root directory).
 # Copyright (c) 2021
 # University of Hamburg, ZBH - Center for Bioinformatics
 # Sophia Hönig, Wolf-Guido Bolick, Emanuel Ehmki, Matthias Rarey
 
-#!/usr/bin/env python3
+
 
 from rdkit import Chem
 import argparse
@@ -46,7 +48,7 @@ if __name__ == "__main__":
 
     # collect values predicted values
     no_deviation = False
-    if pred_ext ==".sdf":
+    if pred_ext == ".sdf":
         pred_mols = Chem.SDMolSupplier(args.prediction)
         for mol in pred_mols:
             pred_dict[mol.GetProp(id_label)] = float(mol.GetProp(args.property))
