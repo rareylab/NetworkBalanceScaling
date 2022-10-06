@@ -1,10 +1,11 @@
+#!/bin/bash
+
 # This file is part of Network Balance Scaling, licensed
 # under BSD New license (see LICENSE in the root directory).
 # Copyright (c) 2021
 # University of Hamburg, ZBH - Center for Bioinformatics
 # Sophia Hönig, Wolf-Guido Bolick, Emanuel Ehmki, Matthias Rarey
 
-#!/bin/bash
 
 training_sdf="data/bace_train.sdf"
 query_sdf="data/bace_test.sdf"
