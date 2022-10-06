@@ -11,6 +11,7 @@ query_sdf="data/bace_test.sdf"
 original="data/bace.sdf"
 
 id_label="id"
+id_label_prediction="_Name"
 prop_label="pic50"
 
 temp_dir="workflow_predict_tmp"
@@ -72,7 +73,7 @@ eval ${cmd}
 
 label_predicted="${prop_label}_predicted"
 label_optimized="${label_predicted}_optimized"
-cmd="python3 utils/evaluate_results.py -o ${original} -p ${results_dir}/${result_name}.sdf --label_predicted ${label_predicted} --label_optimized ${label_optimized} ${prop_label} -i ${id_label} -l ${evaluation_log}"
+cmd="python3 utils/evaluate_results.py -o ${original} -p ${results_dir}/${result_name}.sdf --label_predicted ${label_predicted} --label_optimized ${label_optimized} -i ${id_label} --id_prediction ${id_label_prediction} -l ${evaluation_log} ${prop_label}"
 echo "run: ${cmd}"
 eval ${cmd}
 

@@ -21,9 +21,10 @@ if __name__ == "__main__":
     parser.add_argument('--prediction', '-p', metavar='PREDICTION', required=True, type=str, help='File with predicted property values. SDF or SMILES format.')
     parser.add_argument('--optimized', '-q', metavar="OPTIMIZED", type=str, help="File with optimized property predictions. SDF or SMILES format.")
     parser.add_argument('-i', '--id', type=str, default="_Name", help="ID tag for files in SD format.")
+    parser.add_argument('-y', '--id_prediction', type=str, default="_Name", help="ID tag for predicted SD file.")
     parser.add_argument('-l', '--logfile', type=str, default="evaluation_result.log")
-    parser.add_argument('--label_predicted', type=str, required=True, help="Label of the prediction.")
-    parser.add_argument('--label_optimized', type=str, required=True, help="Label of the optimized prediction.")
+    parser.add_argument('--label_predicted', type=str, required=True, help="Label of the prediction within the optimized file.")
+    parser.add_argument('--label_optimized', type=str, required=True, help="Label of the optimized prediction within the optimized file.")
     
     parser.add_argument('property', metavar='Property', type=str, help='Property of interest (should be similar in both files.')
     args = parser.parse_args()
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     if pred_ext == ".sdf":
         pred_mols = Chem.SDMolSupplier(args.prediction)
         for mol in pred_mols:
-            pred_dict[mol.GetProp(id_label)] = float(mol.GetProp(args.property))
+            pred_dict[mol.GetProp(args.id_prediction)] = float(mol.GetProp(args.label_predicted))
     else:
         for line in open(args.prediction, "r"):
             line_arr = line.split("\t")
@@ -103,32 +104,36 @@ if __name__ == "__main__":
 
     with open(args.logfile, "w") as f:
         stdDev_orig_all = stdev(orgs)
-        stdDev_orig_only_in_net = stdev(orgs_only)
-        stdDev_orig_only_not_in_net = stdev(unopt_values_for_ori)
+        if args.optimized:
+            stdDev_orig_only_in_net = stdev(orgs_only)
+            stdDev_orig_only_not_in_net = stdev(unopt_values_for_ori)
 
-        stdDev_opt_all = stdev(optis_all)
-        stdDev_opt_only_in_net = stdev(optis_only)
+            stdDev_opt_all = stdev(optis_all)
+            stdDev_opt_only_in_net = stdev(optis_only)
 
         f.write("StdDevs:\n")
-        f.write(f"original all values:              {stdDev_orig_all}\n")
-        f.write(f"original only in net values:      {stdDev_orig_only_in_net}\n")
-        f.write(f"original only NOT in net values:  {stdDev_orig_only_not_in_net}\n")
 
-        f.write(f"optimized all values:             {stdDev_opt_all}\n")
-        f.write(f"optimized only in net values:     {stdDev_opt_only_in_net}\n\n")
+        if args.optimized:
+            f.write(f"original all values:              {stdDev_orig_all}\n")
+            f.write(f"original only in net values:      {stdDev_orig_only_in_net}\n")
+            f.write(f"original only NOT in net values:  {stdDev_orig_only_not_in_net}\n")
+
+            f.write(f"optimized all values:             {stdDev_opt_all}\n")
+            f.write(f"optimized only in net values:     {stdDev_opt_only_in_net}\n\n")
 
 
         f.write(f"                              Root Mean Square Deviation    R²        Num_of_Samples\n")
         f.write(f"Predictions(all):             {mean_squared_error(orgs, preds, squared=False):.6f}                      {r2_score(orgs, preds):.6f}  {len(orgs)}\n")
-        f.write(f"Predictions(only in net):     {mean_squared_error(orgs_only, pred_in_net, squared=False):.6f}                      {r2_score(orgs_only, pred_in_net):.6f}  {len(orgs_only)}\n")
-        f.write(f"Predictions(only NOT in net): {mean_squared_error(unopt_values_for_ori, pred_not_in_net, squared=False):.6f}                      {r2_score(unopt_values_for_ori, pred_not_in_net):.6f}  {len(unopt_values_for_ori)}\n\n")
+        if args.optimized:
+            f.write(f"Predictions(only in net):     {mean_squared_error(orgs_only, pred_in_net, squared=False):.6f}                      {r2_score(orgs_only, pred_in_net):.6f}  {len(orgs_only)}\n")
+            f.write(f"Predictions(only NOT in net): {mean_squared_error(unopt_values_for_ori, pred_not_in_net, squared=False):.6f}                      {r2_score(unopt_values_for_ori, pred_not_in_net):.6f}  {len(unopt_values_for_ori)}\n\n")
 
-        if len(optis_all) > 0:
-            f.write(f"Optimized (all):              {mean_squared_error(orgs, optis_all, squared=False):.6f}                      {r2_score(orgs, optis_all):.6f}  {len(orgs)}\n")
-            f.write(
-                f"Optimized (only):             {mean_squared_error(orgs_only, optis_only, squared=False):.6f}                      {r2_score(orgs_only, optis_only):.6f}  {len(orgs_only)}\n\n")
-        if len(unopt_values) > 0:
-            f.write(f"Scores (un_opt):              {mean_squared_error(unopt_values_for_ori, unopt_values, squared=False):.6f}                      {r2_score(unopt_values_for_ori, unopt_values):.6f}  {len(unopt_values)}\n")
-        f.write(f"\nUnoptimizable molecules (IDs) ({len(unoptimizable_ids)} mols):\n")
-        for id in unoptimizable_ids:
-            f.write(f"{id}\n")
+            if len(optis_all) > 0:
+                f.write(f"Optimized (all):              {mean_squared_error(orgs, optis_all, squared=False):.6f}                      {r2_score(orgs, optis_all):.6f}  {len(orgs)}\n")
+                f.write(
+                    f"Optimized (only):             {mean_squared_error(orgs_only, optis_only, squared=False):.6f}                      {r2_score(orgs_only, optis_only):.6f}  {len(orgs_only)}\n\n")
+            if len(unopt_values) > 0:
+                f.write(f"Scores (un_opt):              {mean_squared_error(unopt_values_for_ori, unopt_values, squared=False):.6f}                      {r2_score(unopt_values_for_ori, unopt_values):.6f}  {len(unopt_values)}\n")
+            f.write(f"\nUnoptimizable molecules (IDs) ({len(unoptimizable_ids)} mols):\n")
+            for id in unoptimizable_ids:
+                f.write(f"{id}\n")
