@@ -13,7 +13,7 @@ cd NetworkBalanceScaling
 ./workflow_predict.sh
 ```
 
-Find NBS predictions in bace_optimized/bace_split.sdf:
+Find NBS predictions in bace_NBS_predicted/bace_split.sdf:
 ```
 ...
 >  <pic50_predicted>  (1)
@@ -27,7 +27,7 @@ cd NetworkBalanceScaling
 ./workflow_optimize_predictions.sh
 ```
 
-Find NBS-optimized predictions in bace_optimized_pred/bace_result.sdf:
+Find NBS-optimized predictions in bace_NBS_optimized_prediction/bace_result.sdf:
 ```
 ...
 >  <pic50>  (1)
@@ -43,6 +43,46 @@ Find NBS-optimized predictions in bace_optimized_pred/bace_result.sdf:
 7.168411911472931
 ...
 ```
+
+### bace_NBS_optimized_prediction/evaluates.log
+Since the bace dataset contains measured values for the test-set, we can calculate how good the optimization performed: 
+```
+StdDevs:
+original all values:              1.3555922472779236
+original only in net values:      1.368353774909065
+original only NOT in net values:  1.2911598752840818
+optimized all values:             1.1494894733393708
+optimized only in net values:     1.1902379396695375
+
+                              Root Mean Square Deviation    R²        Num_of_Samples
+Predictions(all):             0.768106                      0.676815  152
+Predictions(only in net):     0.635844                      0.781936  102
+Predictions(only NOT in net): 0.984272                      0.407014  50
+
+Optimized (all):              0.762088                      0.681860  152
+Optimized (only):             0.624960                      0.789338  102
+
+Scores (un_opt):              0.984272                      0.407014  50
+
+Unoptimizable molecules (IDs) (50 mols):
+BACE_1376
+BACE_1371
+...
+```
+
+**all**: scores for all test-compounds
+
+**only in net**: only scores for compounds, that have a MMP connection to other compounds
+
+**only NOT in net**: only compounds, that are not connected to other compounds and therefore, could not be optimized
+
+**Unoptimizable molecules**: since some molecules have no MMP connection to other compounds, they couldn't be optimized, you find the list of IDs here
+
+
+### Runtimes
+workflow_predict.sh: ~1min30sec
+
+workflow_optimize_predictions.sh: ~2min 
 
 
 ## Workflows
