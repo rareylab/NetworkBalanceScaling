@@ -1,0 +1,16 @@
+Activating conda environment.
+run: python predictor/predictor.py /local/bolick/nbs_paper/data/bace_80_10_10/bace_test_tvt.sdf pic50 -d predictor/models/bace_mpnn -o bace_optimized_pred/prediction.smi -m mpnn -i id
+Loading raw samples now.
+shard_size: 8192
+Reading structures from /local/bolick/nbs_paper/data/bace_80_10_10/bace_test_tvt.sdf.
+Currently featurizing feature_type: WeaveFeaturizer
+Featurizing sample 0
+TIMING: featurizing shard 0 took 0.350 s
+TIMING: dataset construction took 0.508 s
+Loading dataset from disk.
+Loading dataset from disk.
+Loading dataset from disk.
+Loading dataset from disk.
+TIMING: dataset construction took 0.133 s
+Loading dataset from disk.
+Predictions were written to bace_optimized_pred/prediction.smi in format SMILES\tID\tPROPERTY\n.

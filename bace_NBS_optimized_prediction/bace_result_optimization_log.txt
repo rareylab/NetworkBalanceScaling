@@ -1,0 +1,6 @@
+File: bace_optimized_pred/bace_result_optimized.GraphML, parameters: t = 0.0, s = 0.0, logarithmic = False
+Total sum of squares deviation: 691.94571
+Total sum of squares without factors: 691.94571
+Sum of Squares deviation per edge: 0.05207
+Sum of Squares deviation per edge without factors: 0.05207
+Number of edges: 13290
