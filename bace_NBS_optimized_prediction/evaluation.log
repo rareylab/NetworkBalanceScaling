@@ -1,0 +1,68 @@
+StdDevs:
+original all values:              1.3555922472779236
+original only in net values:      1.368353774909065
+original only NOT in net values:  1.2911598752840818
+optimized all values:             1.1494894733393708
+optimized only in net values:     1.1902379396695375
+
+                              Root Mean Square Deviation    R²        Num_of_Samples
+Predictions(all):             0.768106                      0.676815  152
+Predictions(only in net):     0.635844                      0.781936  102
+Predictions(only NOT in net): 0.984272                      0.407014  50
+
+Optimized (all):              0.762088                      0.681860  152
+Optimized (only):             0.624960                      0.789338  102
+
+Scores (un_opt):              0.984272                      0.407014  50
+
+Unoptimizable molecules (IDs) (50 mols):
+BACE_1376
+BACE_1371
+BACE_16
+BACE_524
+BACE_1174
+BACE_239
+BACE_394
+BACE_714
+BACE_1350
+BACE_47
+BACE_931
+BACE_785
+BACE_1488
+BACE_152
+BACE_1025
+BACE_425
+BACE_401
+BACE_478
+BACE_121
+BACE_605
+BACE_363
+BACE_1292
+BACE_339
+BACE_105
+BACE_83
+BACE_11
+BACE_577
+BACE_1047
+BACE_513
+BACE_331
+BACE_1012
+BACE_470
+BACE_46
+BACE_1053
+BACE_1512
+BACE_118
+BACE_521
+BACE_489
+BACE_941
+BACE_4
+BACE_365
+BACE_1196
+BACE_1133
+BACE_1394
+BACE_122
+BACE_472
+BACE_31
+BACE_307
+BACE_1430
+BACE_1110
