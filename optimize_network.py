@@ -41,13 +41,8 @@ def optimize_network(g, num_trafo, std_dev, input_name, outdir, loga, prediction
     constraints = []  # This will hold all constructed constraint equations of the system
     var_num = 0  # Provides the next free solver variable
     print('Constructing Constraints for simplex solver. This may take a few minutes...')
-    blacklist = []
     for edge in g.es:
-        # early exit, if edge's antiparallel sibling is already inside the network and blacklisting
-        if edge in blacklist:
-            continue
         source, target = edge.vertex_tuple
-        blacklist.append(g.es.select(_source=target.index, _target=source.index))
 
         edge["variable"] = var_num
         if std_dev > 0 or num_trafo > 0:

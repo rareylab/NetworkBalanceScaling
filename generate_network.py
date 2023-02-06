@@ -14,6 +14,7 @@ from statistics import mean, stdev
 import argparse
 from collections import defaultdict
 
+
 def read_indexing_file(file_name, property_dict, property, predictions={}):
     """
     Processing of the indexing file provided from the output of mmpdb.
@@ -37,6 +38,7 @@ def read_indexing_file(file_name, property_dict, property, predictions={}):
     # Counter for red vertices with unknown and unpredicted property
     nof_unknown_props = 0
     print("Constructing igraph, this may take some time.")
+    testset_ids = set(predictions.keys())
     for num, line in enumerate(open(file_name, 'r')):
         line_fields = re.split('\s|,', line)
         # Indexing file 'csv' format is a tab-separated table with the columns:
@@ -45,11 +47,12 @@ def read_indexing_file(file_name, property_dict, property, predictions={}):
         right_smi = line_fields[1]
         left_id = line_fields[2]
         right_id = line_fields[3]
-        if left_id in predictions.keys():
+
+        if left_id in testset_ids:
             left_property = predictions[left_id][property]
         else:
             left_property = property_dict[left_id][property]
-        if right_id in predictions.keys():
+        if right_id in testset_ids:
             right_property = predictions[right_id][property]
         else:
             right_property = property_dict[right_id][property]
@@ -58,22 +61,23 @@ def read_indexing_file(file_name, property_dict, property, predictions={}):
         ids[right_smi] = right_id
 
         # Collecting node set for igraph
-        try:
-            nodes[left_smi].append(float(left_property))
-        except ValueError:
-            nof_unknown_props += 1
-            left_property = '?'
-        try:
-            nodes[right_smi].append(float(right_property))
-        except ValueError:
-            nof_unknown_props += 1
-            right_property = '?'
+        if left_id in testset_ids or right_id in testset_ids:
+            try:
+                nodes[left_smi].append(float(left_property))
+            except ValueError:
+                nof_unknown_props += 1
+                left_property = '?'
+            try:
+                nodes[right_smi].append(float(right_property))
+            except ValueError:
+                nof_unknown_props += 1
+                right_property = '?'
 
-        # Collecting edge set for igraph.
-        try:
-            edges[left_smi, right_smi].append(transformation)
-        except ValueError:
-            print(f"Invalid transformation: {transformation} in line {num}")
+            # Collecting edge set for igraph.
+            try:
+                edges[left_smi, right_smi].append(transformation)
+            except ValueError:
+                print(f"Invalid transformation: {transformation} in line {num}")
 
         # Collecting information about transformations for mean calculation:
         if not transformation in transformations:
@@ -98,14 +102,15 @@ def calc_means(transformations):
     """
     num_vals = {}
     std_dev = {}
-    for trafo in transformations:
-        num_vals[trafo] = len(transformations[trafo])
-        if len(transformations[trafo]) > 1:
-            std_dev[trafo] = stdev(transformations[trafo])
+    for trafo, entries in transformations.items():
+        nof_entries = len(entries)
+        num_vals[trafo] = nof_entries
+        if nof_entries > 1:
+            std_dev[trafo] = stdev(entries)
         else:
             std_dev[trafo] = 0
-        if transformations[trafo] != []:
-            transformations[trafo] = mean(transformations[trafo])
+        if nof_entries > 0:
+            transformations[trafo] = mean(entries)
         else:
             transformations[trafo] = 0.0  # We assume there is no change for unknown transformations
     return transformations, num_vals, std_dev
@@ -137,36 +142,35 @@ def construct_igraph(file_name, property_dict, property, predictions={}):
     # Construct igraph from dictionary information:
     g = ig.Graph(directed=True)
     pred_key_set = set(predictions.keys())
-    for node in nodes:
+    for node,entries in nodes.items():
         # Color vertices by their property: green = known property, red = unknown property
-        if nodes[node] != []:
+        color = 'red'
+        prop = 0.0
+        if len(entries) > 0:
             if ids[node] in pred_key_set:
-                g.add_vertex(name=node, property=mean(nodes[node]), color='red', chem_id=ids[node])
+                color = 'red'
             else:
-                g.add_vertex(name=node, property=mean(nodes[node]), color='green', chem_id=ids[node])
-        else:
-            g.add_vertex(name=node, property=0.0, color='red', chem_id=ids[node])
+                color = 'green'
+            prop = mean(entries)
+        g.add_vertex(name=node, property=prop, color=color, chem_id=ids[node])
 
     transformations, num_vals, std_dev = calc_means(transformations)
 
-    # Construct the edges, care about each mmp having only two antiparallel edges connecting them.
     black_list = set()
-    for num, edge in enumerate(edges):
-        if num % 1000 == 0 or num == len(edges) - 1:
-            text = f"\rConstructing edge: {1 + num}/{len(edges)} ({float('{:.2f}'.format(((1 + num) / len(edges)) * 100))})%"
-            sys.stdout.write(text)
-            sys.stdout.flush()
+    trafo_list = []
+    nof_edges = len(edges)  # evaluate once
+    for num, (edge, trafos) in enumerate(edges.items()):
+        if num % 1000 == 0 or num == nof_edges - 1:
+            text = f"\rConstructing edge: {1 + num}/{nof_edges} ({float('{:.2f}'.format(((1 + num) / nof_edges) * 100))})%"
+            print(text, end='', flush=True)
         if edge not in black_list:
-            trafo_list = []
-            for trafo in edges[edge]:
+            black_list.add((edge[1], edge[0]))
+            trafo_list.clear()
+            for trafo in trafos:
                 trafo_list.append((trafo, transformations[trafo]))
             chosen_trafo = max(trafo_list, key=lambda item: item[1])
             g.add_edge(edge[0], edge[1], transformation=chosen_trafo[0], transform_mean=chosen_trafo[1],
-                       std_dev=std_dev[chosen_trafo[0]], transform_num=num_vals[chosen_trafo[0]])
-            g.add_edge(edge[1], edge[0], transformation=chosen_trafo[0].replace(">>", "<<"),
-                       transform_mean=-chosen_trafo[1], std_dev=std_dev[chosen_trafo[0]],
-                       transform_num=num_vals[chosen_trafo[0]])
-            black_list.add((edge[1], edge[0]))
+                        std_dev=std_dev[chosen_trafo[0]], transform_num=num_vals[chosen_trafo[0]])
 
     for edge in g.es:
         edge["label"] = str(edge['transform_mean'])
@@ -185,7 +189,8 @@ def construct_igraph(file_name, property_dict, property, predictions={}):
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser(description='Create an MMS network in .GraphML format',
-                                     usage="python3 generate_network.py INDEX.csv MOLECULES.sdf PROPERTY [-o]")
+                                     usage="python3 generate_network.py INDEX.csv MOLECULES.sdf PROPERTY [-o]",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter) # show default values
     parser.add_argument('index', metavar="INDEX.csv", type=str,
                         help='Indexed output from mmpdb containing the MMS relations.')
     parser.add_argument('smi_input', metavar="INPUT.smi", type=str,
@@ -203,6 +208,7 @@ if __name__ == '__main__':
     property = args.property # Property of interest
     outname = args.outname # Name of the output result file
     molecules = {} # All molecules associated with their properties
+
 
     # Extraction of molecules, their IDs and properties
     for line in open(smi_file):
