@@ -15,7 +15,7 @@ import argparse
 from collections import defaultdict
 
 
-def read_indexing_file(file_name, property_dict, property, predictions={}, opt=False):
+def read_indexing_file(file_name, property_dict, property, predictions={}):
     """
     Processing of the indexing file provided from the output of mmpdb.
     :param file_name: Path to the indexing file
@@ -61,7 +61,7 @@ def read_indexing_file(file_name, property_dict, property, predictions={}, opt=F
         ids[right_smi] = right_id
 
         # Collecting node set for igraph
-        if not opt or (left_id in testset_ids or right_id in testset_ids):
+        if left_id in testset_ids or right_id in testset_ids:
             try:
                 nodes[left_smi].append(float(left_property))
             except ValueError:
@@ -116,7 +116,7 @@ def calc_means(transformations):
     return transformations, num_vals, std_dev
 
 
-def construct_igraph(file_name, property_dict, property, predictions={}, opt=False):
+def construct_igraph(file_name, property_dict, property, predictions={}):
     """
     Constructs an igraph object from a given mmpdb indexing csv output.
     Nodes and edges save mean values as their properties.
@@ -133,7 +133,7 @@ def construct_igraph(file_name, property_dict, property, predictions={}, opt=Fal
                 transform_num (number of occurrences of the transformation), std_dev (standard deviation belonging to transform_mean)
     """
     try:
-        nodes, edges, transformations, ids = read_indexing_file(file_name, property_dict, property, predictions, opt)
+        nodes, edges, transformations, ids = read_indexing_file(file_name, property_dict, property, predictions)
     except KeyError:
         print("ERROR: Your indexing file contains an ID which is not present in your input smiles file(s).")
         print("Please make sure that your indexing file was created from your input smiles file.")
@@ -201,8 +201,6 @@ if __name__ == '__main__':
                         help='Specify name of output graph file.')
     parser.add_argument('-p', '--prediction', metavar="PREDICTION.smi", type=str,
                         help="Predictions in smiles format of INPUT.smi")
-    parser.add_argument('-z', '--opt', action='store_true',
-                        help="Optimization to reduce memory/time by ignoring edges between train-compounds.")
     args = parser.parse_args()
 
     smi_file = args.smi_input # Input molecules
@@ -210,7 +208,7 @@ if __name__ == '__main__':
     property = args.property # Property of interest
     outname = args.outname # Name of the output result file
     molecules = {} # All molecules associated with their properties
-    opt = args.opt
+
 
     # Extraction of molecules, their IDs and properties
     for line in open(smi_file):
@@ -223,8 +221,8 @@ if __name__ == '__main__':
         for line in open(args.prediction):
             infos_pred = line.strip().split('\t')  # idx: 0 = smiles, 1 = id, 2 = property
             pred_dict[infos_pred[1]] = {'smiles': infos_pred[0], property: infos_pred[2] if infos_pred[2] != "nan" else ""}
-        g = construct_igraph(idx_file, molecules, property, pred_dict, opt)
+        g = construct_igraph(idx_file, molecules, property, pred_dict)
     else:
-        g = construct_igraph(idx_file, molecules, property, opt)
+        g = construct_igraph(idx_file, molecules, property)
     g.write_graphml(f"{outname}")
     print(f"Your network was saved in GraphML format as: {outname}")
